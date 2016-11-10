@@ -94,7 +94,7 @@ def xml_to_dict(element):
     return dict_data
 
 
-class IMCSaver(object):
+class IMCSaver(obj):
 
     def get_mapping(self, root_tag):
         """
@@ -117,15 +117,15 @@ class IMCSaver(object):
         """
         Save simple header
         """
-        object = ModelClass()
+        obj = ModelClass()
         child = root.find(tag_name)
         model_mapping = self.create_mapping(ModelClass)
         for field_row in model_mapping:
             tag = child.find(field_row[1])
             if tag is None:
                 continue
-            setattr(object, field_row[0], tag.text)
-        return object.save()
+            setattr(obj, field_row[0], tag.text)
+        return obj.save()
 
     def save_data(self, root, ModelClass, tag_name, header):
         """
@@ -134,30 +134,30 @@ class IMCSaver(object):
         data = None
         objects = []
         for child in root.findall(tag_name):
-            object = ModelClass()
+            obj = ModelClass()
             for app_tag in child:
                 tag_to_field_mapping = self.get_mapping(child)
                 if app_tag.tag in tag_to_field_mapping:
                     if app_tag.attrib != {}:
-                        setattr(object, tag_to_field_mapping[app_tag.tag], app_tag.attrib['id'])
+                        setattr(obj, tag_to_field_mapping[app_tag.tag], app_tag.attrib['id'])
                         continue
-                    setattr(object, tag_to_field_mapping[app_tag.tag], app_tag.text)
+                    setattr(obj, tag_to_field_mapping[app_tag.tag], app_tag.text)
                 else:
                     data = xml_to_dict(child)
-            object.id = child.attrib['id']
-            object.data = data
-            object.action = child.attrib['action']
+            obj.id = child.attrib['id']
+            obj.data = data
+            obj.action = child.attrib['action']
             years = child.find('Years')
             if years:
-                object.year_from_id = years.attrib['from']
-                object.year_to_id = years.attrib['to']
-            object.header = header
+                obj.year_from_id = years.attrib['from']
+                obj.year_to_id = years.attrib['to']
+            obj.header = header
             if tag_name == 'DigitalFileInformation':
-                object.language_code = child.attrib['LanguageCode']
-                object.asset_name = child.attrib['AssetName']
+                obj.language_code = child.attrib['LanguageCode']
+                obj.asset_name = child.attrib['AssetName']
                 dimension = tag_name.find("AssetDimensions")
-                object.asset_dimensions = xml_to_dict(dimension)
-            objects.append(object)
+                obj.asset_dimensions = xml_to_dict(dimension)
+            objects.append(obj)
 
             if len(objects) > 500:
                 ModelClass.objects.bulk_create(objects)
